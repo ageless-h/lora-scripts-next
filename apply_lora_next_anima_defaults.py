@@ -103,6 +103,14 @@ LINKS: dict[str, tuple[Path, ...]] = {
         Path("/root/models/sdxl/eps/ChenkinNoob-XL-V0.5.safetensors"),
         Path("/.autodl/5c/18/f8/5c18f83c804c06e10e24c191b422f02d"),
     ),
+    "sdxl/eps/ChenkinNoob-XL-V0.2.safetensors": (
+        Path("/root/models/sdxl/eps/ChenkinNoob-XL-V0.2.safetensors"),
+        Path("/.autodl/ChenkinNoob/ChenkinNoob-XL-V0.2/ChenkinNoob-XL-V0.2.safetensors"),
+    ),
+    "sdxl/rectified_flow/ChenkinNoob-XL-v0.3-Rectified-Flow.safetensors": (
+        Path("/root/models/sdxl/rectified_flow/ChenkinNoob-XL-v0.3-Rectified-Flow.safetensors"),
+        Path("/.autodl/ChenkinRF/ChenkinNoob-XL-v0.3-Rectified-Flow/ChenkinNoob-XL-v0.3-Rectified-Flow.safetensors"),
+    ),
     "sdxl/eps/illustriousXL_v01.safetensors": (
         Path("/root/models/sdxl/eps/illustriousXL_v01.safetensors"),
         Path("/.autodl/a8/94/d5/a894d5ef78c0b284d0ec1e22c4bb56dc"),
