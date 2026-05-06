@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="assets/readme/logo.svg" alt="lora-scripts-next" width="140" height="140" />
+  <img src="assets/readme/anima-cover.png" alt="lora-scripts-next · Anima Trainer" width="880" />
 </p>
 
 <h1 align="center">lora-scripts-next</h1>
