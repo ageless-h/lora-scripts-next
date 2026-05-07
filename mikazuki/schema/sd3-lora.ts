@@ -47,12 +47,7 @@ Schema.intersect([
         network_train_text_encoder_only: Schema.boolean().default(false).description("仅训练 Qwen3 文本编码器"),
     }).description("训练相关参数"),
 
-    Schema.intersect([
-        SHARED_SCHEMAS.LR_OPTIMIZER,
-        Schema.object({
-            unet_lr: Schema.string().default("5e-5").description("U-Net 学习率。Anima 小数据集默认更保守，降低过快贴图和过拟合风险"),
-        }),
-    ]),
+    SHARED_SCHEMAS.LR_OPTIMIZER,
 
     Schema.intersect([
         Schema.object({

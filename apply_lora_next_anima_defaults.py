@@ -266,21 +266,6 @@ def ensure_anima_schema_extras() -> None:
     text = schema.read_text(encoding="utf-8")
     patched = text
 
-    lr_override = """    Schema.intersect([
-        SHARED_SCHEMAS.LR_OPTIMIZER,
-        Schema.object({
-            unet_lr: Schema.string().default("5e-5").description("U-Net 学习率。Anima 小数据集默认更保守，降低过快贴图和过拟合风险"),
-        }),
-    ]),"""
-    before_lr = '    }).description("训练相关参数"),\n\n'
-    after_lr = '\n\n    Schema.intersect([\n        Schema.object({\n            lora_type:'
-    if before_lr in patched and after_lr in patched:
-        prefix, rest = patched.split(before_lr, 1)
-        _, suffix = rest.split(after_lr, 1)
-        patched = prefix + before_lr + lr_override + after_lr + suffix
-    elif 'unet_lr: Schema.string().default("5e-5")' not in patched:
-        patched = patched.replace("    SHARED_SCHEMAS.LR_OPTIMIZER,", lr_override)
-
     sample_at_first = (
         '                sample_at_first: Schema.boolean().default(true).description("训练开始前生成 step 0 预览图，'
         '用作未训练基线对照。建议开启"),'
