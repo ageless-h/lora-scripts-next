@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from __future__ import annotations
 
+import importlib.util
 import os
 import json
 import re
@@ -261,6 +262,52 @@ def ensure_schema_defaults(schema: Path, defaults: dict[str, str]) -> None:
         print(f"schema defaults already patched: {schema}")
 
 
+def ensure_xformers_default() -> None:
+    """If xformers is not installed, flip schema defaults so the WebUI doesn't ask for it.
+
+    `mikazuki/schema/shared.ts` ships with `xformers: default(true)`. When the conda env lacks
+    xformers (e.g. RTX 5090 / cu128 wheels not yet stable), kicking off any training will crash
+    with `ImportError: No module named 'xformers'`. We patch the defaults to prefer SDPA instead.
+    """
+    schema = REPO / "mikazuki/schema/shared.ts"
+    if not schema.exists():
+        return
+
+    has_xformers = importlib.util.find_spec("xformers") is not None
+    text = schema.read_text(encoding="utf-8")
+
+    if has_xformers:
+        new_text = re.sub(
+            r'xformers: Schema\.boolean\(\)(?:\.default\([^)]*\))?\.description\(',
+            'xformers: Schema.boolean().default(true).description(',
+            text,
+        )
+        new_text = re.sub(
+            r'sdpa: Schema\.boolean\(\)(?:\.default\([^)]*\))?\.description\(',
+            'sdpa: Schema.boolean().description(',
+            new_text,
+        )
+    else:
+        new_text = re.sub(
+            r'xformers: Schema\.boolean\(\)(?:\.default\([^)]*\))?\.description\(',
+            'xformers: Schema.boolean().default(false).description(',
+            text,
+        )
+        new_text = re.sub(
+            r'sdpa: Schema\.boolean\(\)(?:\.default\([^)]*\))?\.description\(',
+            'sdpa: Schema.boolean().default(true).description(',
+            new_text,
+        )
+
+    if new_text != text:
+        schema.write_text(new_text, encoding="utf-8")
+        state = "available" if has_xformers else "missing"
+        print(f"patched xformers schema defaults ({state}): {schema}")
+    else:
+        state = "available" if has_xformers else "missing"
+        print(f"xformers schema defaults already aligned ({state}): {schema}")
+
+
 def ensure_anima_schema_extras() -> None:
     schema = REPO / "mikazuki/schema/sd3-lora.ts"
     text = schema.read_text(encoding="utf-8")
@@ -404,6 +451,7 @@ def main() -> None:
     for schema, defaults in SCHEMA_DEFAULTS.items():
         ensure_schema_defaults(schema, defaults)
     ensure_anima_schema_extras()
+    ensure_xformers_default()
 
 
 if __name__ == "__main__":
