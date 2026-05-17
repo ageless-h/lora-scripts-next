@@ -17,7 +17,7 @@ from urllib.request import urlopen
 
 
 HOST = "0.0.0.0"
-PORT = 6008
+PORT = int(os.environ.get("TRAIN_MONITOR_PORT", 6008))
 _GUI_API_PORT = int(os.environ.get("MIKAZUKI_PORT", 28000))
 GUI_API = f"http://127.0.0.1:{_GUI_API_PORT}/api"
 REPO = Path(__file__).resolve().parent
@@ -555,7 +555,8 @@ def render_page(status: dict) -> bytes:
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>训练监控 - 6008</title>
+  <title>训练监控</title>
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
   <style>
     :root {{ color-scheme: dark; --bg:#0b1020; --panel:#121a2e; --line:#26324d; --text:#e5edf8; --muted:#91a0b8; --ok:#34d399; --warn:#fbbf24; --err:#fb7185; }}
     * {{ box-sizing:border-box; }}
@@ -1203,6 +1204,20 @@ def preview_image_path(raw_path: str) -> Path | None:
 class Handler(BaseHTTPRequestHandler):
     def do_GET(self) -> None:
         parsed = urlparse(self.path)
+        if parsed.path == "/favicon.ico":
+            ico_path = REPO / "assets" / "favicon.ico"
+            if ico_path.is_file():
+                payload = ico_path.read_bytes()
+                self.send_response(200)
+                self.send_header("Content-Type", "image/x-icon")
+                self.send_header("Cache-Control", "max-age=86400")
+                self.send_header("Content-Length", str(len(payload)))
+                self.end_headers()
+                self.wfile.write(payload)
+            else:
+                self.send_error(404)
+            return
+
         if parsed.path == "/preview-image":
             params = parse_qs(parsed.query)
             image_path = preview_image_path((params.get("path") or [""])[0])

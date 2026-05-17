@@ -80,7 +80,12 @@ This fork lives at **[wochenlong/lora-scripts-next](https://github.com/wochenlon
 
 ### Dependencies
 
-Python **3.10** and **Git**.
+Python **3.10** (recommended) and **Git**.
+
+> **Version notes:**
+> - **3.10** — 推荐版本，所有依赖完美兼容，kohya-ss 官方测试基准。
+> - **3.11 – 3.12** — 基本可用，少数依赖可能需要额外处理。
+> - **3.13+** — **不支持**，torch / triton / xformers / bitsandbytes 无兼容 wheel。
 
 ### Clone (with submodules)
 

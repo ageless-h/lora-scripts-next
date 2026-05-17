@@ -1,7 +1,7 @@
 Schema.intersect([
     Schema.object({
         model_train_type: Schema.string().default("anima-lora").disabled().description("训练种类"),
-        pretrained_model_name_or_path: Schema.string().role('filepicker', { type: "model-file" }).default("./sd-models/anima/anima-preview3-base.safetensors").description("Anima 主 DiT / transformer 权重路径，例如 anima-preview3-base.safetensors"),
+        pretrained_model_name_or_path: Schema.string().role('filepicker', { type: "model-file" }).default("./sd-models/anima/anima-base-v1.0.safetensors").description("Anima 主 DiT / transformer 权重路径，例如 anima-base-v1.0.safetensors"),
         vae: Schema.string().role('filepicker', { type: "model-file" }).default("./sd-models/anima/qwen_image_vae.safetensors").description("Qwen Image VAE 模型路径（Anima 训练必填）"),
         qwen3: Schema.string().role('filepicker', { type: "model-file" }).default("./sd-models/anima/qwen_3_06b_base.safetensors").description("Qwen3 文本模型路径。可填写 safetensors / pt 文件，或完整本地模型目录"),
         llm_adapter_path: Schema.string().role('filepicker', { type: "model-file" }).description("单独的 LLM Adapter 权重路径（可选）。填写后会覆盖主模型内置 Adapter"),
@@ -19,7 +19,7 @@ Schema.intersect([
         logit_mean: Schema.number().step(0.01).description("logit_normal 权重策略的均值"),
         logit_std: Schema.number().step(0.01).description("logit_normal 权重策略的标准差"),
         mode_scale: Schema.number().step(0.01).description("mode 权重策略的缩放系数"),
-        attn_mode: Schema.union(["", "torch", "xformers", "sageattn", "flash"]).default("xformers").description("Attention 实现。留空时由训练脚本自动选择。xformers 需要 A100+（算力≥8.0），RTX 20/30 系等老卡请改用 torch"),
+        attn_mode: Schema.union(["", "torch", "xformers", "sageattn", "flash"]).default("").description("Attention 实现。留空 = 自动选择（有 xformers 用 xformers，否则用 torch SDPA）。xformers 需要算力≥8.0 且已安装；RTX 20/30 系等老卡请选 torch"),
         split_attn: Schema.boolean().default(false).description("拆分 attention 计算以降低显存占用，通常会牺牲训练速度"),
         vae_chunk_size: Schema.number().min(2).description("VAE 编码/解码分块大小（需为偶数）"),
         vae_disable_cache: Schema.boolean().default(false).description("禁用内部 VAE 缓存机制"),

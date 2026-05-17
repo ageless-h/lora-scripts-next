@@ -15,13 +15,23 @@ parser.add_argument("--port", type=int, default=28000, help="Port to run the ser
 parser.add_argument("--listen", action="store_true")
 parser.add_argument("--skip-prepare-environment", action="store_true")
 parser.add_argument("--skip-prepare-onnxruntime", action="store_true")
-parser.add_argument("--disable-tensorboard", action="store_true")
+parser.add_argument("--disable-tensorboard", action="store_true", default=True)
 parser.add_argument("--disable-tageditor", action="store_true")
+parser.add_argument("--disable-train-monitor", action="store_true")
 parser.add_argument("--disable-auto-mirror", action="store_true")
 parser.add_argument("--tensorboard-host", type=str, default="127.0.0.1", help="Port to run the tensorboard")
 parser.add_argument("--tensorboard-port", type=int, default=6006, help="Port to run the tensorboard")
+parser.add_argument("--train-monitor-port", type=int, default=6008, help="Port to run the train status monitor")
 parser.add_argument("--localization", type=str)
 parser.add_argument("--dev", action="store_true")
+
+
+@catch_exception
+def run_train_monitor():
+    log.info(f"Starting train status monitor on port {args.train_monitor_port}...")
+    env = os.environ.copy()
+    env["TRAIN_MONITOR_PORT"] = str(args.train_monitor_port)
+    subprocess.Popen([sys.executable, str(base_dir_path() / "train_status_server.py")], env=env)
 
 
 @catch_exception
@@ -71,6 +81,7 @@ def launch():
     os.environ["MIKAZUKI_PORT"] = str(args.port)
     os.environ["MIKAZUKI_TENSORBOARD_HOST"] = args.tensorboard_host
     os.environ["MIKAZUKI_TENSORBOARD_PORT"] = str(args.tensorboard_port)
+    os.environ["TRAIN_MONITOR_PORT"] = str(args.train_monitor_port)
     os.environ["MIKAZUKI_DEV"] = "1" if args.dev else "0"
 
     if args.listen:
@@ -83,8 +94,12 @@ def launch():
     if not args.disable_tensorboard:
         run_tensorboard()
 
+    if not args.disable_train_monitor:
+        run_train_monitor()
+
     import uvicorn
     log.info(f"Server started at http://{args.host}:{args.port}")
+    log.info(f"Train monitor at http://{args.host}:{args.train_monitor_port}")
     uvicorn.run("mikazuki.app:app", host=args.host, port=args.port, log_level="error", reload=args.dev)
 
 
