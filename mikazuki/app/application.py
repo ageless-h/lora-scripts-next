@@ -52,7 +52,13 @@ async def app_startup():
     await asyncio.to_thread(check_torch_gpu)
 
     if sys.platform == "win32" and os.environ.get("MIKAZUKI_DEV", "0") != "1":
+        import time
+        from mikazuki.log import log as app_log
         webbrowser.open(f'http://{os.environ["MIKAZUKI_HOST"]}:{os.environ["MIKAZUKI_PORT"]}')
+        monitor_port = os.environ.get("TRAIN_MONITOR_PORT", "6008")
+        time.sleep(1)
+        app_log.info(f"Opening train monitor in browser: http://127.0.0.1:{monitor_port}")
+        webbrowser.open(f'http://127.0.0.1:{monitor_port}')
 
 
 @asynccontextmanager

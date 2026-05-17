@@ -205,10 +205,19 @@ def setup_windows_bitsandbytes():
 
     # bnb_windows_index = os.environ.get("BNB_WINDOWS_INDEX", "https://jihulab.com/api/v4/projects/140618/packages/pypi/simple")
     bnb_package = "bitsandbytes==0.46.0"
-    bnb_path = os.path.join(sysconfig.get_paths()["purelib"], "bitsandbytes")
-
     installed_bnb = is_installed("bitsandbytes")  # don't check version here
-    bnb_cuda_setup = len([f for f in os.listdir(bnb_path) if re.findall(r"libbitsandbytes_cuda.+?\.dll", f)]) != 0
+
+    try:
+        import importlib
+        bnb_spec = importlib.util.find_spec("bitsandbytes")
+        bnb_path = os.path.dirname(bnb_spec.origin) if bnb_spec and bnb_spec.origin else os.path.join(sysconfig.get_paths()["purelib"], "bitsandbytes")
+    except Exception:
+        bnb_path = os.path.join(sysconfig.get_paths()["purelib"], "bitsandbytes")
+
+    if not os.path.isdir(bnb_path):
+        bnb_cuda_setup = False
+    else:
+        bnb_cuda_setup = len([f for f in os.listdir(bnb_path) if re.findall(r"libbitsandbytes_cuda.+?\.dll", f)]) != 0
 
     if not installed_bnb or not bnb_cuda_setup:
         log.error("detected wrong install of bitsandbytes, reinstall it")
