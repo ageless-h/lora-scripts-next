@@ -1,9 +1,13 @@
+import os
 import sys
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 from mikazuki.anima_backend.upstream import (
+    _is_initialized_git_checkout,
     prefer_upstream_imports,
     resolve_upstream_path,
     upstream_entrypoint,
@@ -61,6 +65,84 @@ class AnimaBackendUpstreamTests(unittest.TestCase):
             verify_pinned_commit(root),
             "502cc3fab2aa22c106580e2e05c4692cfde5e5ff",
         )
+
+    def _git(self, cwd: Path, *args: str) -> subprocess.CompletedProcess:
+        return subprocess.run(
+            ["git", "-C", str(cwd),
+             "-c", "user.email=t@t", "-c", "user.name=t",
+             *args],
+            check=True, capture_output=True, text=True,
+        )
+
+    def _init_repo_with_commit(self, path: Path, filename: str, message: str) -> None:
+        subprocess.run(["git", "init", "-q", str(path)], check=True)
+        (path / filename).write_text("seed", encoding="utf-8")
+        self._git(path, "add", filename)
+        self._git(path, "commit", "-q", "-m", message)
+
+    def _make_fake_repo(self, temp_dir: str, pinned: str, upstream_initialized: bool):
+        root = Path(temp_dir) / "repo"
+        upstream = root / "vendor" / "sd-scripts"
+        upstream.mkdir(parents=True)
+        config = root / "config" / "anima_backend.toml"
+        config.parent.mkdir()
+        config.write_text(
+            "[backend]\n"
+            'upstream_path = "vendor/sd-scripts"\n'
+            'entrypoint = "anima_train_network.py"\n'
+            f'pinned_commit = "{pinned}"\n',
+            encoding="utf-8",
+        )
+        # Make the parent ``root`` look like a git repo so rev-parse would
+        # otherwise leak the superproject HEAD into the upstream check.
+        self._init_repo_with_commit(root, "seed.txt", "seed")
+        if upstream_initialized:
+            self._init_repo_with_commit(upstream, "file.txt", "init")
+        return root, upstream
+
+    def test_is_initialized_git_checkout_false_for_empty_submodule(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            _, upstream = self._make_fake_repo(temp_dir, "deadbeef", upstream_initialized=False)
+            self.assertFalse(_is_initialized_git_checkout(upstream))
+
+    def test_is_initialized_git_checkout_true_for_real_repo(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            _, upstream = self._make_fake_repo(temp_dir, "deadbeef", upstream_initialized=True)
+            self.assertTrue(_is_initialized_git_checkout(upstream))
+
+    def test_verify_pinned_commit_raises_for_uninitialized_submodule(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root, upstream = self._make_fake_repo(temp_dir, "deadbeef", upstream_initialized=False)
+            with self.assertRaises(RuntimeError) as ctx:
+                verify_pinned_commit(root)
+            self.assertIn("git submodule update --init", str(ctx.exception))
+            self.assertIn(str(upstream), str(ctx.exception))
+
+    def test_current_upstream_commit_raises_for_uninitialized_submodule(self):
+        from mikazuki.anima_backend.upstream import current_upstream_commit
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            _, upstream = self._make_fake_repo(temp_dir, "deadbeef", upstream_initialized=False)
+            with self.assertRaises(RuntimeError) as ctx:
+                current_upstream_commit(upstream)
+            self.assertIn("git submodule update --init", str(ctx.exception))
+
+    def test_verify_pinned_commit_raises_on_commit_drift(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root, _ = self._make_fake_repo(temp_dir, "deadbeef", upstream_initialized=True)
+            with self.assertRaises(RuntimeError) as ctx:
+                verify_pinned_commit(root)
+            self.assertIn("commit mismatch", str(ctx.exception))
+
+    def test_verify_pinned_commit_drift_allowed_via_env(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root, upstream = self._make_fake_repo(temp_dir, "deadbeef", upstream_initialized=True)
+            actual_head = subprocess.run(
+                ["git", "-C", str(upstream), "rev-parse", "HEAD"],
+                check=True, capture_output=True, text=True,
+            ).stdout.strip()
+            with mock.patch.dict(os.environ, {"ANIMA_ALLOW_COMMIT_DRIFT": "1"}):
+                self.assertEqual(verify_pinned_commit(root), actual_head)
 
 
 if __name__ == "__main__":
