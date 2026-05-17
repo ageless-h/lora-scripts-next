@@ -38,7 +38,7 @@
 |:---|:---|
 | **Train WebUI** | Single dashboard: presets, tensorboard hook, tagger, tag editor — open **`http://127.0.0.1:28000`** after `run_gui.ps1` / `run_gui.sh`. |
 | **What this fork adds** | **Anima LoRA** training entry in the sidebar (Anima DiT + Qwen3 + T5), live training log over SSE at **`/train-log`**, and a `MIKAZUKI_FRONTEND_DIST` env var for swapping the static UI without touching the submodule. |
-| **Back end** | [kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts) is the primary backend, including Anima training; SDXL RF ideas from [bluvoll/Akegarasu-lora-scripts-RF](https://github.com/bluvoll/Akegarasu-lora-scripts-RF). |
+| **Back end** | All training types (SD / SDXL / Flux / **Anima**) now run on [kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts). SDXL RF ideas from [bluvoll/Akegarasu-lora-scripts-RF](https://github.com/bluvoll/Akegarasu-lora-scripts-RF). |
 | **Docs** | Full attribution & licenses in [`NOTICE.md`](NOTICE.md). |
 
 ---
@@ -68,6 +68,14 @@ Full license attribution in [`NOTICE.md`](NOTICE.md). If anything is missing or 
 
 ---
 
+<details>
+<summary><b>Lineage & upstream (click to expand)</b></summary>
+
+This fork lives at **[wochenlong/lora-scripts-next](https://github.com/wochenlong/lora-scripts-next)** and inherits the **Akegarasu SD-Trainer / 秋叶一键训练包** UX from **[Akegarasu/lora-scripts](https://github.com/Akegarasu/lora-scripts)**. All training backends (SD / SDXL / Flux / **Anima**) are unified on **[kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts)**. SDXL **Rectified Flow** follows **[bluvoll/Akegarasu-lora-scripts-RF](https://github.com/bluvoll/Akegarasu-lora-scripts-RF)**. Earlier Anima work referenced **[WhitecrowAurora/lora-rescripts](https://github.com/WhitecrowAurora/lora-rescripts)** (SD-reScripts), but active maintenance has fully migrated to kohya-ss/sd-scripts.
+
+</details>
+
+---
 # Usage
 
 ### Dependencies

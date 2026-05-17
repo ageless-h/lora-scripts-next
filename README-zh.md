@@ -10,8 +10,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/wochenlong/lora-scripts-next"><img src="https://img.shields.io/github/stars/wochenlong/lora-scripts-next?style=flat-square&label=星标&logo=github&color=8b5cf6" alt="stars"/></a>
-  <a href="https://github.com/wochenlong/lora-scripts-next"><img src="https://img.shields.io/github/forks/wochenlong/lora-scripts-next?style=flat-square&label=分支&color=06b6d4" alt="forks"/></a>
+  <a href="https://github.com/wochenlong/lora-scripts-next"><img src="https://img.shields.io/github/stars/wochenlong/lora-scripts-next?style=flat-square&label=stars&logo=github&color=8b5cf6" alt="stars"/></a>
+  <a href="https://github.com/wochenlong/lora-scripts-next"><img src="https://img.shields.io/github/forks/wochenlong/lora-scripts-next?style=flat-square&label=forks&color=06b6d4" alt="forks"/></a>
   <a href="https://github.com/wochenlong/lora-scripts-next/blob/main/LICENSE"><img src="https://img.shields.io/github/license/wochenlong/lora-scripts-next?style=flat-square&color=ec4899" alt="license"/></a>
   <a href="https://github.com/wochenlong/lora-scripts-next/releases"><img src="https://img.shields.io/github/v/release/wochenlong/lora-scripts-next?include_prereleases&style=flat-square&color=a78bfa" alt="release"/></a>
 </p>
@@ -38,7 +38,7 @@
 |:---|:---|
 | **训练 WebUI** | 预设、TensorBoard、WD 标签器、标签编辑器同一入口；运行 `run_gui.ps1` / `run_gui.sh` 后打开 **`http://127.0.0.1:28000`**。 |
 | **本 fork 增量** | 左侧 sidebar 多出 **Anima LoRA**（Anima DiT + Qwen3 + T5）训练入口；训练日志通过 SSE 实时推送到独立页面 **`/train-log`**；新增 `MIKAZUKI_FRONTEND_DIST` 环境变量，无需动 submodule 即可换前端 dist 目录。 |
-| **后端** | [kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts) 是主要训练后端，并负责 Anima 训练；SDXL RF 脉络来自 [bluvoll/Akegarasu-lora-scripts-RF](https://github.com/bluvoll/Akegarasu-lora-scripts-RF)。 |
+| **后端** | 所有训练类型（SD / SDXL / Flux / **Anima**）统一使用 [kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts) 后端。SDXL RF 脉络来自 [bluvoll/Akegarasu-lora-scripts-RF](https://github.com/bluvoll/Akegarasu-lora-scripts-RF)。 |
 | **许可证与致谢** | 详见 [`NOTICE.md`](NOTICE.md)。 |
 
 ---
@@ -56,7 +56,7 @@
 <details>
 <summary><b>上游与血缘（展开）</b></summary>
 
-当前仓库：**[wochenlong/lora-scripts-next](https://github.com/wochenlong/lora-scripts-next)**。界面与打包体验源自 **秋叶一键训练包 / [Akegarasu/lora-scripts](https://github.com/Akegarasu/lora-scripts)**，训练后端为 **[kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts)**。SDXL **Rectified Flow** 参考 **[bluvoll/Akegarasu-lora-scripts-RF](https://github.com/bluvoll/Akegarasu-lora-scripts-RF)**。**Anima** 曾参考 **[WhitecrowAurora/lora-rescripts](https://github.com/WhitecrowAurora/lora-rescripts)**（**SD-reScripts**），但当前维护基线已经迁移到 **kohya-ss/sd-scripts**。
+当前仓库：**[wochenlong/lora-scripts-next](https://github.com/wochenlong/lora-scripts-next)**。界面与打包体验源自 **秋叶一键训练包 / [Akegarasu/lora-scripts](https://github.com/Akegarasu/lora-scripts)**，所有训练后端（SD / SDXL / Flux / **Anima**）统一基于 **[kohya-ss/sd-scripts](https://github.com/kohya-ss/sd-scripts)**。SDXL **Rectified Flow** 参考 **[bluvoll/Akegarasu-lora-scripts-RF](https://github.com/bluvoll/Akegarasu-lora-scripts-RF)**。**Anima** 曾参考 **[WhitecrowAurora/lora-rescripts](https://github.com/WhitecrowAurora/lora-rescripts)**（SD-reScripts），当前维护基线已完全迁移到 kohya-ss/sd-scripts。
 
 </details>
 
