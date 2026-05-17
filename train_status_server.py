@@ -18,7 +18,8 @@ from urllib.request import urlopen
 
 HOST = "0.0.0.0"
 PORT = 6008
-GUI_API = "http://127.0.0.1:6006/api"
+_GUI_API_PORT = int(os.environ.get("MIKAZUKI_PORT", 28000))
+GUI_API = f"http://127.0.0.1:{_GUI_API_PORT}/api"
 REPO = Path(__file__).resolve().parent
 OUTPUT_DIR = REPO / "output"
 LOG_DIR = REPO / "logs"
@@ -578,8 +579,8 @@ def render_page(status: dict) -> bytes:
     .loss-summary {{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; color:var(--muted); font-size:13px; }}
     .pill {{ display:inline-flex; align-items:center; border:1px solid var(--line); border-radius:999px; padding:3px 8px; background:#0b1224; color:var(--text); }}
     .pill.good {{ color:#86efac; border-color:#166534; background:#052e1a; }}
-    .loss-chart {{ width:100%; height:96px; border:1px solid var(--line); border-radius:12px; background:#050816; }}
-    .trend-chart {{ width:100%; height:138px; border:1px solid var(--line); border-radius:12px; background:#050816; }}
+    .loss-chart {{ display:block; width:100%; height:96px; border:1px solid var(--line); border-radius:12px; background:#050816; }}
+    .trend-chart {{ display:block; width:100%; height:138px; border:1px solid var(--line); border-radius:12px; background:#050816; }}
     .loss-line {{ fill:none; stroke:#34d399; stroke-width:2.5; vector-effect:non-scaling-stroke; }}
     .loss-area {{ fill:rgba(52,211,153,.12); }}
     .card {{ padding:14px; }}
@@ -663,7 +664,7 @@ def render_page(status: dict) -> bytes:
       </div>
       <div class="trend-headline" id="lossTrendHeadline">等待 Loss 数据</div>
       <div class="trend-copy" id="lossTrendCopy">开始训练后会显示相对初始值的下降趋势。</div>
-      <svg class="trend-chart" id="lossTrendChart" viewBox="0 0 600 138" preserveAspectRatio="none" aria-label="Loss 相对趋势"></svg>
+      <svg class="trend-chart" id="lossTrendChart" width="100%" height="138" viewBox="0 0 600 138" preserveAspectRatio="none" aria-label="Loss 相对趋势"></svg>
     </section>
     <details class="panel" id="logDetails">
       <summary id="logSummary">训练日志</summary>

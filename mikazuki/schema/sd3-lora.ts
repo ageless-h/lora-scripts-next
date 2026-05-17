@@ -19,7 +19,7 @@ Schema.intersect([
         logit_mean: Schema.number().step(0.01).description("logit_normal 权重策略的均值"),
         logit_std: Schema.number().step(0.01).description("logit_normal 权重策略的标准差"),
         mode_scale: Schema.number().step(0.01).description("mode 权重策略的缩放系数"),
-        attn_mode: Schema.union(["", "torch", "xformers", "sageattn", "flash"]).default("").description("Attention 实现。留空时由训练脚本自动选择"),
+        attn_mode: Schema.union(["", "torch", "xformers", "sageattn", "flash"]).default("xformers").description("Attention 实现。留空时由训练脚本自动选择。xformers 需要 A100+（算力≥8.0），RTX 20/30 系等老卡请改用 torch"),
         split_attn: Schema.boolean().default(false).description("拆分 attention 计算以降低显存占用，通常会牺牲训练速度"),
         vae_chunk_size: Schema.number().min(2).description("VAE 编码/解码分块大小（需为偶数）"),
         vae_disable_cache: Schema.boolean().default(false).description("禁用内部 VAE 缓存机制"),
@@ -51,7 +51,7 @@ Schema.intersect([
 
     Schema.intersect([
         Schema.object({
-            lora_type: Schema.union(["lora", "lora_fa", "vera", "tlora", "lokr"]).default("lora").description("适配器类型。常规训练建议选择 LoRA"),
+            lora_type: Schema.union(["lora", "lora_fa", "vera", "tlora", "loha", "lokr"]).default("lora").description("适配器类型。常规训练建议选择 LoRA"),
             network_weights: Schema.string().role('filepicker').description("从已有 LoRA / LoKr 模型继续训练，填写路径"),
             network_dim: Schema.number().min(1).default(16).description("网络维度，常用 4~128，不是越大越好"),
             network_alpha: Schema.number().min(1).default(16).description("常用值：等于 network_dim 或 network_dim/2 或 1"),
@@ -104,11 +104,21 @@ Schema.intersect([
                 dropout: Schema.number().hidden(),
             }),
             Schema.object({
+                lora_type: Schema.const("loha").required(),
+                network_module: Schema.const("networks.loha").default("networks.loha").hidden(),
+                network_dropout: Schema.number().step(0.01).default(0).description("LoHa dropout 概率"),
+                pissa_init: Schema.boolean().hidden(),
+                lycoris_algo: Schema.string().hidden(),
+                lokr_factor: Schema.number().hidden(),
+                dropout: Schema.number().hidden(),
+            }),
+            Schema.object({
                 lora_type: Schema.const("lokr").required(),
-                network_module: Schema.const("networks.lora_anima").default("networks.lora_anima").hidden(),
-                lycoris_algo: Schema.const("lokr").default("lokr").hidden(),
+                network_module: Schema.const("networks.lokr").default("networks.lokr").hidden(),
                 lokr_factor: Schema.number().min(-1).default(8).description("LoKr 分解因子"),
                 dropout: Schema.number().step(0.01).default(0).description("LoKr dropout 概率"),
+                pissa_init: Schema.boolean().hidden(),
+                lycoris_algo: Schema.string().hidden(),
                 network_dropout: Schema.number().hidden(),
             }),
         ]),
